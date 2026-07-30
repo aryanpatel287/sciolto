@@ -5,7 +5,7 @@ import app from '../app.js';
 import cartModel from '../models/cart.model.js';
 import productModel from '../models/product.model.js';
 import redis from '../config/cache.js';
-import { stockOfProduct } from '../dao/product.dao.js';
+import { findStockOfProduct, findProductByIdLean } from '../dao/product.dao.js';
 
 // Mock Redis client
 vi.mock('../config/cache.js', () => ({
@@ -24,7 +24,8 @@ vi.mock('../models/product.model.js', () => ({
 
 // Mock Product DAO
 vi.mock('../dao/product.dao.js', () => ({
-    stockOfProduct: vi.fn(),
+    findStockOfProduct: vi.fn(),
+    findProductByIdLean: vi.fn(),
 }));
 
 // Mock Cart Model
@@ -131,11 +132,9 @@ describe('Cart Endpoints & DAO', () => {
                 save: vi.fn().mockResolvedValue(true),
             };
 
-            productModel.findById.mockReturnValue({
-                lean: vi.fn().mockResolvedValue(mockProduct),
-            });
+            findProductByIdLean.mockResolvedValue(mockProduct);
             cartModel.findOne.mockResolvedValue(mockCart);
-            stockOfProduct.mockResolvedValue(10);
+            findStockOfProduct.mockResolvedValue(10);
 
             // Mock aggregation result for new cart state
             const mockAggregatedCart = {

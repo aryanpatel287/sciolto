@@ -1,7 +1,6 @@
 import cartModel from '../models/cart.model.js';
 import { sendResponse } from '../utils/response.utlis.js';
-import { stockOfProduct } from '../dao/product.dao.js';
-import productModel from '../models/product.model.js';
+import { findStockOfProduct, findProductByIdLean } from '../dao/product.dao.js';
 import mongoose from 'mongoose';
 import { findOrCreateCart, getFormattedCart } from '../dao/cart.dao.js';
 
@@ -25,7 +24,7 @@ const addToCartController = async (req, res) => {
 
     try {
         const [product, cart] = await Promise.all([
-            productModel.findById(productId).lean(),
+            findProductByIdLean(productId),
             findOrCreateCart(userId),
         ]);
 
@@ -56,7 +55,7 @@ const addToCartController = async (req, res) => {
             productPrice = variant.price;
         }
 
-        const stock = await stockOfProduct(productId, variantId);
+        const stock = await findStockOfProduct(productId, variantId);
 
         const isProductInCart = cart.items.find(
             (item) =>
@@ -169,7 +168,7 @@ const updateCartItemController = async (req, res) => {
             });
         }
 
-        const stock = await stockOfProduct(productId, variantId);
+        const stock = await findStockOfProduct(productId, variantId);
 
         if (stock < quantity) {
             return await sendResponse({
