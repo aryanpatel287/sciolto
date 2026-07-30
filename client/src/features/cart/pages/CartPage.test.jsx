@@ -68,7 +68,10 @@ describe('CartPage Component', () => {
     it('should render empty state when cart is empty', async () => {
         getCartItems.mockResolvedValueOnce({
             success: true,
-            cart: { items: [] },
+            cart: {
+                items: [],
+                totalCartPrice: { amount: 0, currency: 'INR' },
+            },
         });
 
         renderWithProvider(<CartPage />);
@@ -84,17 +87,15 @@ describe('CartPage Component', () => {
             _id: 'prod1',
             title: 'Street Hoodie',
             images: [{ url: '/hoodie.png', alt: 'Street Hoodie' }],
-            variants: [
-                {
-                    _id: 'variant1',
-                    attributes: {
-                        size: 'L',
-                        color: 'Black'
-                    },
-                    stock: 10,
-                    price: { amount: 100, currency: 'INR' }
-                }
-            ]
+            variants: {
+                _id: 'variant1',
+                attributes: {
+                    size: 'L',
+                    color: 'Black'
+                },
+                stock: 10,
+                price: { amount: 100, currency: 'INR' }
+            }
         };
 
         const mockCartItems = [
@@ -109,7 +110,10 @@ describe('CartPage Component', () => {
 
         getCartItems.mockResolvedValueOnce({
             success: true,
-            cart: { items: mockCartItems },
+            cart: {
+                items: mockCartItems,
+                totalCartPrice: { amount: 200, currency: 'INR' },
+            },
         });
 
         renderWithProvider(<CartPage />);
@@ -140,17 +144,15 @@ describe('CartPage Component', () => {
             _id: 'prod1',
             title: 'Street Hoodie',
             images: [{ url: '/hoodie.png', alt: 'Street Hoodie' }],
-            variants: [
-                {
-                    _id: 'variant1',
-                    attributes: {
-                        size: 'L',
-                        color: 'Black'
-                    },
-                    stock: 10,
-                    price: { amount: 100, currency: 'INR' }
-                }
-            ]
+            variants: {
+                _id: 'variant1',
+                attributes: {
+                    size: 'L',
+                    color: 'Black'
+                },
+                stock: 10,
+                price: { amount: 100, currency: 'INR' }
+            }
         };
 
         const initialCartItems = [
@@ -175,17 +177,26 @@ describe('CartPage Component', () => {
 
         getCartItems.mockResolvedValueOnce({
             success: true,
-            cart: { items: initialCartItems },
+            cart: {
+                items: initialCartItems,
+                totalCartPrice: { amount: 100, currency: 'INR' },
+            },
         });
 
         updateCartItem.mockResolvedValueOnce({
             success: true,
-            cart: { items: incrementedCartItems },
+            cart: {
+                items: incrementedCartItems,
+                totalCartPrice: { amount: 200, currency: 'INR' },
+            },
         });
 
         updateCartItem.mockResolvedValueOnce({
             success: true,
-            cart: { items: initialCartItems },
+            cart: {
+                items: initialCartItems,
+                totalCartPrice: { amount: 100, currency: 'INR' },
+            },
         });
 
 
@@ -229,17 +240,15 @@ describe('CartPage Component', () => {
             _id: 'prod1',
             title: 'Street Hoodie',
             images: [{ url: '/hoodie.png', alt: 'Street Hoodie' }],
-            variants: [
-                {
-                    _id: 'variant1',
-                    attributes: {
-                        size: 'L',
-                        color: 'Black'
-                    },
-                    stock: 10,
-                    price: { amount: 100, currency: 'INR' }
-                }
-            ]
+            variants: {
+                _id: 'variant1',
+                attributes: {
+                    size: 'L',
+                    color: 'Black'
+                },
+                stock: 10,
+                price: { amount: 100, currency: 'INR' }
+            }
         };
 
         const mockCartItems = [
@@ -254,12 +263,18 @@ describe('CartPage Component', () => {
 
         getCartItems.mockResolvedValueOnce({
             success: true,
-            cart: { items: mockCartItems },
+            cart: {
+                items: mockCartItems,
+                totalCartPrice: { amount: 100, currency: 'INR' },
+            },
         });
 
         removeFromCart.mockResolvedValueOnce({
             success: true,
-            cart: { items: [] },
+            cart: {
+                items: [],
+                totalCartPrice: { amount: 0, currency: 'INR' },
+            },
         });
 
         renderWithProvider(<CartPage />);

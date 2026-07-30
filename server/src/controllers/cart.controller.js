@@ -2,6 +2,8 @@ import cartModel from '../models/cart.model.js';
 import { sendResponse } from '../utils/response.utlis.js';
 import { stockOfProduct } from '../dao/product.dao.js';
 import productModel from '../models/product.model.js';
+import mongoose from 'mongoose';
+import { findOrCreateCart, getFormattedCart } from '../dao/cart.dao.js';
 
 /**
  * @route POST /api/cart/add/:productId/:variantId
@@ -22,9 +24,9 @@ const addToCartController = async (req, res) => {
     }
 
     try {
-        const [product, cartResult] = await Promise.all([
+        const [product, cart] = await Promise.all([
             productModel.findById(productId).lean(),
-            cartModel.findOne({ user: userId }),
+            findOrCreateCart(userId),
         ]);
 
         if (!product) {
@@ -39,7 +41,9 @@ const addToCartController = async (req, res) => {
 
         let productPrice = product.price;
         if (variantId) {
-            const variant = product.variants && product.variants.find((v) => v._id.toString() === variantId);
+            const variant =
+                product.variants &&
+                product.variants.find((v) => v._id.toString() === variantId);
             if (!variant) {
                 return await sendResponse({
                     res,
@@ -53,8 +57,6 @@ const addToCartController = async (req, res) => {
         }
 
         const stock = await stockOfProduct(productId, variantId);
-
-        let cart = cartResult || new cartModel({ user: userId, items: [] });
 
         const isProductInCart = cart.items.find(
             (item) =>
@@ -79,12 +81,14 @@ const addToCartController = async (req, res) => {
             isProductInCart.quantity += quantity;
             await cart.save();
 
+            const formattedCart = await getFormattedCart(userId);
+
             return await sendResponse({
                 res,
                 statusCode: 200,
                 message: 'Product added to cart',
                 success: true,
-                cart,
+                cart: formattedCart,
             });
         }
 
@@ -107,12 +111,14 @@ const addToCartController = async (req, res) => {
 
         await cart.save();
 
+        const formattedCart = await getFormattedCart(userId);
+
         return await sendResponse({
             res,
             statusCode: 200,
             message: 'Product added to cart',
             success: true,
-            cart,
+            cart: formattedCart,
         });
     } catch (error) {
         console.error(error);
@@ -143,26 +149,14 @@ const updateCartItemController = async (req, res) => {
     console.log(productId, variantId);
 
     try {
-        const cart = await cartModel
-            .findOne({ user: userId })
-            .populate('items.product');
-
-        if (!cart) {
-            return await sendResponse({
-                res,
-                statusCode: 404,
-                message: 'Cart not found',
-                success: false,
-                error: 'Cart not found',
-            });
-        }
+        const cart = await findOrCreateCart(userId);
 
         const isProductInCart = cart.items.find(
             (item) =>
-                item.product._id.toString() === productId &&
+                item.product.toString() === productId &&
                 (variantId
-                    ? item.variant._id?.toString() === variantId
-                    : !item.variant._id),
+                    ? item.variant?.toString() === variantId
+                    : !item.variant),
         );
 
         if (!isProductInCart) {
@@ -204,12 +198,14 @@ const updateCartItemController = async (req, res) => {
         }
         await cart.save();
 
+        const formattedCart = await getFormattedCart(userId);
+
         return await sendResponse({
             res,
             statusCode: 200,
             message: 'Updated cart item successfully',
             success: true,
-            cart,
+            cart: formattedCart,
         });
     } catch (error) {
         console.error(error);
@@ -236,25 +232,11 @@ const removeFromCartController = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const cart = await cartModel
-            .findOne({ user: userId })
-            .populate('items.product');
-
-        console.log('Cart:', cart);
-
-        if (!cart) {
-            return await sendResponse({
-                res,
-                statusCode: 404,
-                message: 'Cart not found',
-                success: false,
-                error: 'Cart not found',
-            });
-        }
+        const cart = await findOrCreateCart(userId);
 
         const itemIndex = cart.items.findIndex(
             (item) =>
-                item.product._id.toString() === productId &&
+                item.product.toString() === productId &&
                 (variantId
                     ? item.variant?.toString() === variantId
                     : !item.variant),
@@ -274,12 +256,14 @@ const removeFromCartController = async (req, res) => {
         cart.items.splice(itemIndex, 1);
         await cart.save();
 
+        const formattedCart = await getFormattedCart(userId);
+
         return await sendResponse({
             res,
             statusCode: 200,
             message: 'Product removed from cart',
             success: true,
-            cart,
+            cart: formattedCart,
         });
     } catch (error) {
         console.log(`Error removing product from cart: ${error.message}`);
@@ -303,11 +287,7 @@ const getCartController = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const cart =
-            (await cartModel
-                .findOne({ user: userId })
-                .populate('items.product')) ||
-            new cartModel({ user: userId, items: [] });
+        const cart = await getFormattedCart(userId);
 
         return await sendResponse({
             res,
@@ -334,3 +314,4 @@ export {
     removeFromCartController,
     updateCartItemController,
 };
+

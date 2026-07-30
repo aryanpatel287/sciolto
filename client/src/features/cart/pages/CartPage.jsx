@@ -11,11 +11,11 @@ import '../styles/_cart-page.scss';
 
 const CartPage = () => {
     const cartItems = useSelector((state) => state.cart.items);
-    const { handleSetCartItems } = useCart();
+    const { handleSetCart } = useCart();
 
     // Load cart items on mount
     useEffect(() => {
-        handleSetCartItems();
+        handleSetCart();
     }, []);
 
     return (
@@ -27,14 +27,14 @@ const CartPage = () => {
 
                 <h1 className="cart-title">YOUR CART</h1>
 
-                  {cartItems.length === 0 ? (
-                      <CartEmptyState />
-                  ) : (
-                      <div className="cart-layout">
-                          <CartItemsList />
-                          <CartSummary />
-                      </div>
-                  )}
+                {cartItems.length === 0 ? (
+                    <CartEmptyState />
+                ) : (
+                    <div className="cart-layout">
+                        <CartItemsList />
+                        <CartSummary />
+                    </div>
+                )}
             </main>
 
             <Footer />

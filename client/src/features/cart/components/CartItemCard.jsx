@@ -31,9 +31,7 @@ const CartItemCard = ({ item }) => {
         let attributes = [];
 
         if (item.variant) {
-            const variantObj = product.variants?.find(
-                (v) => v._id.toString() === item.variant.toString(),
-            );
+            const variantObj = product.variants;
             if (variantObj) {
                 if (variantObj.images?.length > 0) {
                     image = variantObj.images[0].url;
@@ -61,11 +59,7 @@ const CartItemCard = ({ item }) => {
                 to={`/products/${item.product?._id}`}
                 className="cart-item-card__img-container"
             >
-                <img
-                    src={image}
-                    alt={title}
-                    className="cart-item-card__img"
-                />
+                <img src={image} alt={title} className="cart-item-card__img" />
             </Link>
 
             <div className="cart-item-card__details">
@@ -89,17 +83,14 @@ const CartItemCard = ({ item }) => {
                     {attributes &&
                         attributes.map((attr) => (
                             <span key={attr.name}>
-                                {attr.name}:{' '}
-                                <strong>
-                                    {attr.value}
-                                </strong>
+                                {attr.name}: <strong>{attr.value}</strong>
                             </span>
                         ))}
                 </p>
 
                 <div className="cart-item-card__price-row">
                     <span className="cart-item-card__price">
-                        ₹{item.price?.amount || 0}
+                        ₹{item.product?.variants?.price?.amount || 0}
                     </span>
 
                     {/* Quantity Stepper */}
