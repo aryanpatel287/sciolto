@@ -9,4 +9,13 @@ async function findAllCategories() {
     return categories;
 }
 
-export { findAllCategories };
+async function findCategoryBySlugOrName(category) {
+    return await categoryModel.findOne({
+        $or: [
+            { slug: category.toLowerCase() },
+            { name: { $regex: `^${category}$`, $options: 'i' } },
+        ],
+    });
+}
+
+export { findAllCategories, findCategoryBySlugOrName };

@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
-import productModel from '../models/product.model.js';
-import categoryModel from '../models/category.model.js';
+import {
+    findProductById,
+    findProductByIdLean,
+    createProduct,
+    updateProductById,
+    findProductsBySeller,
+    countProducts,
+    findProductsPaginated
+} from '../dao/product.dao.js';
+import { findCategoryBySlugOrName } from '../dao/category.dao.js';
 import { sendResponse } from '../utils/response.utlis.js';
 import { uploadFileToImageKit } from '../services/storage.service.js';
 
@@ -125,7 +133,7 @@ async function createProductController(req, res) {
             parsedVariants.map((variant) => createVariant(variant)),
         );
 
-        const product = await productModel.create({
+        const product = await createProduct({
             title,
             description,
             price: {
@@ -191,11 +199,7 @@ async function updateProductController(req, res) {
 
     try {
         const updateData = req.body;
-        const updatedProduct = await productModel.findByIdAndUpdate(
-            productId,
-            updateData,
-            { new: true },
-        );
+        const updatedProduct = await updateProductById(productId, updateData);
 
         if (!updatedProduct) {
             return sendResponse({
@@ -237,7 +241,7 @@ async function getSellerProductsController(req, res) {
     const seller = req.user._id;
 
     try {
-        const products = await productModel.find({ seller }).populate('seller');
+        const products = await findProductsBySeller(seller);
 
         return sendResponse({
             res,
@@ -280,12 +284,7 @@ async function getProductsController(req, res) {
             if (mongoose.Types.ObjectId.isValid(category)) {
                 filter.category = category;
             } else {
-                const catDoc = await categoryModel.findOne({
-                    $or: [
-                        { slug: category.toLowerCase() },
-                        { name: { $regex: `^${category}$`, $options: 'i' } },
-                    ],
-                });
+                const catDoc = await findCategoryBySlugOrName(category);
                 if (catDoc) {
                     filter.category = catDoc._id;
                 } else {
@@ -327,14 +326,9 @@ async function getProductsController(req, res) {
             sort = { 'price.amount': -1 };
         }
 
-        const products = await productModel
-            .find(filter)
-            .lean()
-            .sort(sort)
-            .skip(skip)
-            .limit(limit);
+        const products = await findProductsPaginated({ filter, sort, skip, limit });
 
-        const totalProducts = await productModel.countDocuments(filter);
+        const totalProducts = await countProducts(filter);
 
         return sendResponse({
             res,
@@ -373,7 +367,7 @@ async function getAProductController(req, res) {
     }
 
     try {
-        const product = await productModel.findById(productId).lean();
+        const product = await findProductByIdLean(productId);
 
         if (!product) {
             return sendResponse({
@@ -421,7 +415,7 @@ async function createVariantController(req, res) {
         const variantData = req.body;
         const variant = await createVariant(variantData);
 
-        const product = await productModel.findById(productId);
+        const product = await findProductById(productId);
         if (!product) {
             return sendResponse({
                 res,
@@ -478,13 +472,14 @@ async function getProductsByCategoryController(req, res) {
             filter._id = { $ne: exclude };
         }
 
-        const productsByCategory = await productModel
-            .find(filter)
-            .lean()
-            .skip(skip)
-            .limit(limit);
+        const productsByCategory = await findProductsPaginated({
+            filter,
+            sort: { createdAt: -1 },
+            skip,
+            limit,
+        });
 
-        const totalProducts = await productModel.countDocuments(filter);
+        const totalProducts = await countProducts(filter);
 
         return sendResponse({
             res,
