@@ -1,6 +1,14 @@
 import redis from '../config/cache.js';
 import { config } from '../config/config.js';
-import userModel from '../models/user.model.js';
+import {
+    findUserByEmailOrContact,
+    createUser,
+    findUserByEmailWithPassword,
+    findUserByEmail,
+    updateUserPassword,
+    getCachedUser,
+    invalidateUserCache,
+} from '../dao/user.dao.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { sendResponse } from '../utils/response.utlis.js';
@@ -71,9 +79,7 @@ async function RegsiterUserController(req, res) {
         }
 
         const { email, password, contact, fullname, isSeller } = req.body;
-        const isUserExists = await userModel.findOne({
-            $or: [{ email }, { contact }],
-        });
+        const isUserExists = await findUserByEmailOrContact(email, contact);
 
         if (isUserExists) {
             return await sendResponse({
@@ -84,7 +90,7 @@ async function RegsiterUserController(req, res) {
             });
         }
 
-        const user = await userModel.create({
+        const user = await createUser({
             email,
             password,
             contact,
@@ -123,7 +129,7 @@ async function loginUserController(req, res) {
 
         const { email, password } = req.body;
 
-        const user = await userModel.findOne({ email }).select('+password');
+        const user = await findUserByEmailWithPassword(email);
 
         if (!user || !user.password) {
             return await sendResponse({
@@ -174,10 +180,10 @@ async function googleAuthController(req, res) {
 
         const email = emails[0].value;
 
-        let user = await userModel.findOne({ email });
+        let user = await findUserByEmail(email);
 
         if (!user) {
-            user = await userModel.create({
+            user = await createUser({
                 email,
                 fullname: displayName,
                 googleId: id,
@@ -209,21 +215,6 @@ async function googleAuthController(req, res) {
     }
 }
 
-// cache helper
-async function getCachedUser(userId) {
-    const cacheKey = `sciolto:user:${userId}`;
-    const cached = await redis.get(cacheKey);
-
-    if (cached) {
-        return JSON.parse(cached);
-    }
-
-    const user = await userModel.findById(userId).lean();
-    if (!user) return null;
-
-    await redis.set(cacheKey, JSON.stringify(user), 'EX', 60 * 10); // 10 min
-    return user;
-}
 
 /**
  * @route GET /api/auth/get-me
@@ -275,10 +266,6 @@ async function getMeController(req, res) {
     }
 }
 
-// call this after any profile update
-async function invalidateUserCache(userId) {
-    await redis.del(`sciolto:user:${userId}`);
-}
 
 /**
  * @route POST /api/auth/forgot-password
@@ -299,7 +286,7 @@ async function forgotPasswordController(req, res) {
             });
         }
 
-        const user = await userModel.findOne({ email });
+        const user = await findUserByEmail(email);
 
         if (!user) {
             return await sendResponse({
@@ -373,13 +360,7 @@ async function updatePasswordController(req, res) {
 
         const hasedPassword = await bcrypt.hash(password, 10);
 
-        const user = await userModel
-            .findByIdAndUpdate(
-                { _id: userId },
-                { password: hasedPassword },
-                { new: true },
-            )
-            .select('+password');
+        const user = await updateUserPassword(userId, hasedPassword);
 
         if (!user) {
             return await sendResponse({
