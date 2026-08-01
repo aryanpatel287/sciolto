@@ -50,6 +50,18 @@ if (
     );
 }
 
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRECT) {
+    throw new Error(
+        'RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRECT ARE NOT DEFINED IN THE ENVIRONMENTAL VARIABLES',
+    );
+}
+
+if (!process.env.IMAGEKIT_PRIVATE_KEY) {
+    throw new Error(
+        'IMAGEKIT_PRIVATE_KEY IS NOT DEFINED IN THE ENVIRONMENTAL VARIABLES',
+    );
+}
+
 export const config = {
     //Server config
     SERVER_URL: process.env.SERVER_URL,
@@ -82,4 +94,8 @@ export const config = {
     //Resend config
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_USER: process.env.RESEND_USER,
+
+    //Razorpay config
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRECT: process.env.RAZORPAY_KEY_SECRECT,
 };

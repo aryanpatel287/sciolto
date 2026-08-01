@@ -10,3 +10,10 @@ export const updatePaymentStatus = async (orderId, updateData, session) => {
     const options = session ? { session, new: true } : { new: true };
     return await paymentModel.findOneAndUpdate(query, updateData, options);
 };
+
+export const createPaymentRecord = async (paymentData, session) => {
+    const options = session ? { session, ordered: true } : {};
+    const [created] = await paymentModel.create([paymentData], options);
+    return created;
+};
+
