@@ -9,6 +9,17 @@ import * as paymentDao from '../dao/payment.dao.js';
 import * as cartDao from '../dao/cart.dao.js';
 import * as productDao from '../dao/product.dao.js';
 import * as orderDao from '../dao/order.dao.js';
+import redis from '../config/cache.js';
+import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils.js';
+
+
+// Mock Redis client
+vi.mock('../config/cache.js', () => ({
+    default: {
+        get: vi.fn(),
+        set: vi.fn(),
+    },
+}));
 
 // Mock Mongoose Payment Model
 vi.mock('../models/payment.model.js', () => ({
@@ -26,6 +37,7 @@ vi.mock('../services/payment.service.js', () => ({
 vi.mock('../dao/payment.dao.js', () => ({
     findPaymentByOrderId: vi.fn(),
     updatePaymentStatus: vi.fn(),
+    createPaymentRecord: vi.fn(),
 }));
 
 vi.mock('../dao/cart.dao.js', () => ({
@@ -52,12 +64,15 @@ describe('Payment Endpoints', () => {
     let token;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
+        redis.get.mockResolvedValue(null);
+        validatePaymentVerification.mockReturnValue(true);
         token = jwt.sign(
             { _id: userId, role: 'buyer' },
             process.env.JWT_SECRET || 'testsecret'
         );
     });
+
 
     describe('POST /api/payments/create/order', () => {
         it('should create payment order successfully', async () => {
@@ -81,7 +96,7 @@ describe('Payment Endpoints', () => {
             };
 
             createOrderOnRazorpay.mockResolvedValue(mockRazorpayOrder);
-            paymentModel.create.mockResolvedValue(mockPaymentRecord);
+            paymentDao.createPaymentRecord.mockResolvedValue(mockPaymentRecord);
 
             const response = await request(app)
                 .post('/api/payments/create/order')
@@ -93,7 +108,7 @@ describe('Payment Endpoints', () => {
             expect(response.body.message).toBe('Order created successfully');
             expect(response.body.razorpayOrder).toEqual(mockRazorpayOrder);
             expect(createOrderOnRazorpay).toHaveBeenCalledWith({ amount: 1000, currency: 'INR' });
-            expect(paymentModel.create).toHaveBeenCalled();
+            expect(paymentDao.createPaymentRecord).toHaveBeenCalled();
         });
     });
 
