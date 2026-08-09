@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
 import Register from '../features/auth/pages/Register';
 import Login from '../features/auth/pages/Login';
 import ForgotPassword from '../features/auth/pages/ForgotPassword';
@@ -30,6 +30,14 @@ export const appRoutes = createBrowserRouter([
         element: (
             <ProtectedPage>
                 <CartPage />
+            </ProtectedPage>
+        ),
+    },
+    {
+        path: '/orders',
+        element: (
+            <ProtectedPage>
+                <Navigate to="/profile?tab=orders" replace />
             </ProtectedPage>
         ),
     },

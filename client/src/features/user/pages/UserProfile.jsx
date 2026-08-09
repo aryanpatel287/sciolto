@@ -5,6 +5,7 @@ import Navbar from '../../shared/components/Navbar';
 import DashboardHome from '../components/DashboardHome';
 import DashboardAccount from '../components/DashboardAccount';
 import DashboardAddresses from '../components/DashboardAddresses';
+import OrdersPage from '../../orders/pages/OrdersPage';
 import DashboardMyProducts from '../../products/components/product-dashboard/DashboardMyProducts';
 import CreateProduct from '../../products/pages/product-dashboard/CreateProduct';
 import EditProduct from '../../products/pages/product-dashboard/EditProduct';
@@ -114,6 +115,15 @@ const UserProfile = () => {
                                         <i className="ri-map-pin-line"></i>
                                         <span>Addresses</span>
                                     </button>
+                                    <button
+                                        type="button"
+                                        className={`dashboard-sidebar__item ${activeTab === 'orders' ? 'dashboard-sidebar__item--active' : ''}`}
+                                        onClick={() => handleTabChange('orders')}
+                                        title="Orders"
+                                    >
+                                        <i className="ri-file-list-3-line"></i>
+                                        <span>Orders</span>
+                                    </button>
 
                                     {displayUser.role === 'seller' ? (
                                         <button
@@ -141,6 +151,8 @@ const UserProfile = () => {
                             ) : null}
 
                             {activeTab === 'addresses' ? <DashboardAddresses /> : null}
+
+                            {activeTab === 'orders' ? <OrdersPage /> : null}
 
                             {activeTab === 'products' ? (
                                 <DashboardMyProducts
