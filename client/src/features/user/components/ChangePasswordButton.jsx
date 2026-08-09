@@ -36,7 +36,7 @@ const ChangePasswordButton = () => {
 
             {isOpen && (
                 <form
-                    className="change-password-form texture-lines"
+                    className="change-password-form"
                     onSubmit={handleSubmit}
                 >
                     <h3 className="change-password-form__title">

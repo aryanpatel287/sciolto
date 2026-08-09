@@ -1,15 +1,15 @@
 @use '../../shared/styles/mixins' as *;
 
 .dashboard-sidebar {
-    width: 240px;
-    background-color: var(--color-surface);
+    width: 260px;
+    background-color: var(--color-background);
     border-right: var(--border-thin);
     @include displayFlex(stretch, flex-start, column);
     transition: width var(--transition-fast) ease;
     flex-shrink: 0;
 
     &--collapsed {
-        width: 70px;
+        width: 80px;
 
         .dashboard-sidebar__item {
             justify-content: center;
@@ -70,7 +70,7 @@
 }
 
 .dashboard-sidebar__toggle-wrapper {
-    padding: 16px 24px;
+    padding: 24px;
     border-bottom: var(--border-hairline);
     @include displayFlex(center, center);
 
@@ -79,33 +79,9 @@
     }
 }
 
-.dashboard-sidebar__header {
-    padding: 32px 24px;
-    border-bottom: var(--border-hairline);
-    @include displayFlex(flex-start, flex-start, column, 4px);
-
-    @media (max-width: 900px) {
-        display: none;
-    }
-}
-
-.dashboard-sidebar__overline {
-    @include labelCaps;
-    font-size: 0.65rem;
-    color: var(--color-muted-foreground);
-}
-
-.dashboard-sidebar__title {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-}
-
 .dashboard-sidebar__nav {
-    @include displayFlex(stretch, flex-start, column);
-    padding: 16px 0;
+    @include displayFlex(stretch, flex-start, column, 4px);
+    padding: 24px 16px;
     width: 100%;
 
     @media (max-width: 900px) {
@@ -113,23 +89,24 @@
         padding: 0;
         align-items: center;
         height: 100%;
-        gap: 16px;
+        gap: 12px;
     }
 }
 
 .dashboard-sidebar__item {
     background: transparent;
     border: none;
-    padding: 14px 24px;
+    padding: 12px 20px;
     text-align: left;
-    color: var(--color-foreground);
+    color: var(--color-muted-foreground);
     @include displayFlex(center, flex-start, row, 12px);
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     width: 100%;
+    border-radius: var(--border-radius-btn);
     transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
     i {
@@ -138,14 +115,14 @@
     }
 
     &:hover {
-        background-color: var(--color-foreground);
-        color: var(--color-background);
+        background-color: var(--color-muted);
+        color: var(--color-foreground);
     }
 
     &--active {
-        background-color: var(--color-foreground);
-        color: var(--color-background);
-        font-weight: 600;
+        background-color: var(--color-muted);
+        color: var(--color-foreground);
+        font-weight: 700;
     }
 
     @media (max-width: 900px) {
@@ -154,7 +131,9 @@
         border: var(--border-thin);
         height: 38px;
         white-space: nowrap;
+        border-radius: var(--border-radius-btn);
         @include displayFlex(center, center, row, 8px);
+        border-left: var(--border-thin);
 
         span {
             display: inline !important;
@@ -162,6 +141,12 @@
 
         i {
             margin: 0;
+        }
+
+        &--active {
+            border-left: var(--border-thin);
+            background-color: var(--color-muted);
+            color: var(--color-foreground);
         }
     }
 }
@@ -171,9 +156,10 @@
     border: var(--border-thin);
     color: var(--color-foreground);
     width: 100%;
-    padding: 10px;
+    padding: 10px 16px;
+    border-radius: var(--border-radius-btn);
     cursor: pointer;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -181,7 +167,6 @@
     transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
     &:hover {
-        background-color: var(--color-foreground);
-        color: var(--color-background);
+        background-color: var(--color-muted);
     }
 }

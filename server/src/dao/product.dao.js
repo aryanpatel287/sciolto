@@ -57,3 +57,20 @@ export async function findProductsPaginated({ filter, sort, skip, limit }) {
         .skip(skip)
         .limit(limit);
 }
+
+export const decrementProductVariantStock = async (productId, variantId, quantity, session) => {
+    const query = {
+        _id: productId,
+        'variants._id': variantId,
+        'variants.stock': { $gte: quantity },
+    };
+    const update = {
+        $inc: { 'variants.$.stock': -quantity },
+    };
+    const options = {
+        new: true,
+        select: 'variants._id variants.stock',
+        ...(session ? { session } : {}),
+    };
+    return await productModel.findOneAndUpdate(query, update, options);
+};

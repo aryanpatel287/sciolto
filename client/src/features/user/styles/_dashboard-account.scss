@@ -1,7 +1,7 @@
 @use '../../shared/styles/mixins' as *;
 
 .dashboard-account {
-    @include displayFlex(flex-start, flex-start, column, 24px);
+    @include displayFlex(flex-start, flex-start, column, 32px);
     width: 100%;
 }
 
@@ -10,7 +10,7 @@
     grid-template-columns: 1.2fr 0.8fr;
     gap: 32px;
     width: 100%;
-    margin-top: 16px;
+    margin-top: 8px;
 
     @media (max-width: 900px) {
         grid-template-columns: 1fr;
@@ -19,6 +19,7 @@
 
 .user-details-card {
     border: var(--border-thin);
+    border-radius: var(--border-radius-card);
     padding: 32px;
     background-color: var(--color-surface);
     @include displayFlex(stretch, flex-start, column, 24px);
@@ -26,7 +27,7 @@
     &__item {
         @include displayFlex(center, space-between, row, 16px);
         border-bottom: var(--border-hairline);
-        padding-bottom: 12px;
+        padding-bottom: 16px;
 
         &:last-child {
             border-bottom: none;
@@ -36,7 +37,7 @@
         @media (max-width: 480px) {
             flex-direction: column;
             align-items: flex-start;
-            gap: 4px;
+            gap: 6px;
         }
     }
 
@@ -48,18 +49,20 @@
 
     &__value {
         font-family: var(--font-body);
-        font-size: 1.125rem;
-        font-weight: 400;
+        font-size: 1rem;
+        font-weight: 500;
         color: var(--color-foreground);
 
         &--role {
             font-family: var(--font-mono);
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            background-color: var(--color-foreground);
-            color: var(--color-background);
-            padding: 2px 8px;
+            background-color: var(--color-muted);
+            color: var(--color-foreground);
+            padding: 4px 12px;
+            border-radius: var(--border-radius-btn);
+            font-weight: 600;
         }
     }
 }
@@ -77,6 +80,7 @@
 
 .change-password-form {
     border: var(--border-thin);
+    border-radius: var(--border-radius-card);
     padding: 32px;
     background-color: var(--color-surface);
     width: 100%;
@@ -85,7 +89,9 @@
     &__title {
         font-family: var(--font-display);
         font-size: 1.5rem;
-        font-weight: 600;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
         margin-bottom: 8px;
     }
 

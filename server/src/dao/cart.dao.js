@@ -20,7 +20,7 @@ export const findOrCreateCart = async (userId) => {
  * @param {string|mongoose.Types.ObjectId} userId - The user's ID
  * @returns {Promise<Object>} The aggregated and formatted cart object
  */
-export const getFormattedCart = async (userId) => {
+export const getFormattedCart = async (userId, session) => {
     const cartDoc = await findOrCreateCart(userId);
 
     if (!cartDoc.items || cartDoc.items.length === 0) {
@@ -33,6 +33,8 @@ export const getFormattedCart = async (userId) => {
             },
         };
     }
+
+    const options = session ? { session } : {};
 
     const [aggregatedCart] = await cartModel.aggregate([
         {
@@ -48,8 +50,24 @@ export const getFormattedCart = async (userId) => {
         {
             $lookup: {
                 from: 'products',
-                localField: 'items.product',
-                foreignField: '_id',
+                let: { prodId: '$items.product', varId: '$items.variant' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$_id', '$$prodId'] } } },
+                    {
+                        $project: {
+                            title: 1,
+                            seller: 1,
+                            price: 1,
+                            variants: {
+                                $filter: {
+                                    input: '$variants',
+                                    as: 'v',
+                                    cond: { $eq: ['$$v._id', '$$varId'] },
+                                },
+                            },
+                        },
+                    },
+                ],
                 as: 'items.product',
             },
         },
@@ -64,22 +82,35 @@ export const getFormattedCart = async (userId) => {
             },
         },
         {
-            $match: {
-                $expr: {
-                    $eq: ['$items.product.variants._id', '$items.variant'],
+            $set: {
+                'items.product.variants.isInStock': {
+                    $gte: [
+                        {
+                            $subtract: [
+                                {
+                                    $ifNull: [
+                                        '$items.product.variants.stock',
+                                        0,
+                                    ],
+                                },
+                                { $ifNull: ['$items.quantity', 0] },
+                            ],
+                        },
+                        0,
+                    ],
                 },
             },
         },
         {
-            $addFields: {
-                itemPrice: {
+            $set: {
+                'items.itemSubTotal': {
                     amount: {
                         $multiply: [
                             '$items.quantity',
-                            '$items.product.variants.price.amount',
+                            { $ifNull: ['$items.product.variants.price.amount', '$items.product.price.amount'] },
                         ],
                     },
-                    currency: '$items.product.variants.price.currency',
+                    currency: { $ifNull: ['$items.product.variants.price.currency', '$items.product.price.currency'] },
                 },
             },
         },
@@ -90,10 +121,10 @@ export const getFormattedCart = async (userId) => {
                     $push: '$items',
                 },
                 totalAmount: {
-                    $sum: '$itemPrice.amount',
+                    $sum: '$items.itemSubTotal.amount',
                 },
                 currency: {
-                    $first: '$itemPrice.currency',
+                    $first: '$items.itemSubTotal.currency',
                 },
             },
         },
@@ -106,14 +137,26 @@ export const getFormattedCart = async (userId) => {
                 },
             },
         },
-    ]);
+    ], options);
 
-    return aggregatedCart || {
-        _id: cartDoc._id,
-        items: [],
-        totalCartPrice: {
-            amount: 0,
-            currency: 'INR',
-        },
-    };
+    return (
+        aggregatedCart || {
+            _id: cartDoc._id,
+            items: [],
+            totalCartPrice: {
+                amount: 0,
+                currency: 'INR',
+            },
+        }
+    );
 };
+
+export const clearCart = async (userId, session) => {
+    const options = session ? { session, new: true } : { new: true };
+    return await cartModel.findOneAndUpdate(
+        { user: userId },
+        { $set: { items: [] } },
+        options
+    );
+};
+

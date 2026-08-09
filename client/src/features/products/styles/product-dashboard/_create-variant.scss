@@ -60,9 +60,10 @@
 
 .attr-key-input,
 .attr-value-input {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 10px 16px;
+    border-radius: var(--border-radius-btn);
 }
 
 .remove-attr-btn {
