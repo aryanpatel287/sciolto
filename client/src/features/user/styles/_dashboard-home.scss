@@ -1,7 +1,7 @@
 @use '../../shared/styles/mixins' as *;
 
 .dashboard-home {
-    @include displayFlex(flex-start, flex-start, column, 24px);
+    @include displayFlex(flex-start, flex-start, column, 32px);
     width: 100%;
 }
 
@@ -13,41 +13,47 @@
 
 .dashboard-title {
     font-family: var(--font-display);
-    font-size: 2.25rem;
-    font-weight: 500;
+    font-size: 2.5rem;
+    font-weight: 900;
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     text-transform: uppercase;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+    color: var(--color-foreground);
 
     em {
         font-style: italic;
         font-weight: 400;
     }
+
+    @media (max-width: 600px) {
+        font-size: 1.8rem;
+    }
 }
 
 .dashboard-home__subtitle {
     font-family: var(--font-body);
-    font-size: 1.15rem;
+    font-size: 1rem;
     line-height: 1.6;
     color: var(--color-muted-foreground);
     max-width: 600px;
-    margin-top: -8px;
+    margin-top: -16px;
 }
 
 .dashboard-home__status-card {
     border: var(--border-thin);
+    border-radius: var(--border-radius-card);
     padding: 32px;
     background-color: var(--color-surface);
     width: 100%;
     margin-top: 16px;
-    @include displayFlex(stretch, flex-start, column, 20px);
+    @include displayFlex(stretch, flex-start, column, 24px);
 
     .status-title {
         @include labelCaps;
         font-size: 0.8rem;
         border-bottom: var(--border-hairline);
-        padding-bottom: 12px;
+        padding-bottom: 16px;
         color: var(--color-foreground);
         font-weight: 700;
     }
@@ -65,23 +71,23 @@
 }
 
 .status-item {
-    @include displayFlex(flex-start, flex-start, column, 4px);
+    @include displayFlex(flex-start, flex-start, column, 8px);
     border-left: var(--border-thin);
-    padding-left: 16px;
+    padding-left: 20px;
 
     .status-label {
         @include labelCaps;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         color: var(--color-muted-foreground);
     }
 
     .status-value {
         font-family: var(--font-mono);
-        font-size: 1.1rem;
+        font-size: 1.125rem;
         font-weight: 600;
+        color: var(--color-foreground);
 
         &--active {
-            color: #000;
             position: relative;
             @include displayFlex(center, flex-start, row, 8px);
 
@@ -90,8 +96,8 @@
                 display: block;
                 width: 8px;
                 height: 8px;
-                background-color: #000;
-                border-radius: 0;
+                background-color: var(--color-foreground);
+                border-radius: 0; // strict square
             }
         }
     }

@@ -52,10 +52,10 @@
     @include displayFlex(center, center);
     width: 52px;
     height: 52px;
-    border-radius: 0;
+    border-radius: 50%;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    color: var(--color-primary);
+    color: var(--color-foreground);
     margin-bottom: 4px;
     transition: transform 0.2s ease;
 }
@@ -95,7 +95,7 @@
 }
 
 .image-preview-wrapper {
-    border-radius: 0;
+    border-radius: var(--border-radius-card);
     transition: opacity 0.15s ease;
 
     &.is-dragging {
@@ -103,7 +103,7 @@
     }
 
     &.drag-over {
-        outline: 2px dashed var(--color-primary);
+        outline: 2px dashed var(--color-foreground);
         outline-offset: 3px;
     }
 }
@@ -112,7 +112,7 @@
 
 .image-preview-card {
     position: relative;
-    border-radius: 0;
+    border-radius: var(--border-radius-card);
     overflow: hidden;
     aspect-ratio: 1 / 1;
     background-color: var(--color-background);
@@ -159,7 +159,7 @@
         letter-spacing: 0.06em;
         text-transform: uppercase;
         padding: 2px 7px;
-        border-radius: 0;
+        border-radius: var(--border-radius-btn);
     }
 
     &__remove {
@@ -169,7 +169,7 @@
         right: 6px;
         width: 24px;
         height: 24px;
-        border-radius: 0;
+        border-radius: 50%;
         border: 1px solid var(--color-border);
         background-color: var(--color-background);
         color: var(--color-foreground);
@@ -192,7 +192,7 @@
         left: 6px;
         width: 22px;
         height: 22px;
-        border-radius: 0;
+        border-radius: 50%;
         border: 1px solid var(--color-border);
         background-color: var(--color-background);
         color: var(--color-foreground);
@@ -207,7 +207,7 @@
 .image-add-more {
     @include displayFlex(center, center, column, 6px);
     aspect-ratio: 1 / 1;
-    border-radius: 0;
+    border-radius: var(--border-radius-card);
     border: 2px dashed var(--color-border);
     background-color: var(--color-background);
     color: var(--color-text-muted);

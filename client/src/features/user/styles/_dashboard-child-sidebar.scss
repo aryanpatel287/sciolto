@@ -1,11 +1,11 @@
 @use '../../shared/styles/mixins' as *;
 
 .dashboard-child-sidebar {
-    width: 200px;
+    width: 220px;
     background-color: var(--color-background);
     border-right: var(--border-thin);
     @include displayFlex(stretch, flex-start, column);
-    padding: 24px 0;
+    padding: 24px 16px;
     transition: all var(--transition-fast) ease;
     flex-shrink: 0;
 
@@ -18,35 +18,12 @@
         overflow-x: auto;
         padding: 0 16px;
         height: 50px;
-        background-color: var(--color-surface);
+        background-color: var(--color-background);
     }
-}
-
-.dashboard-child-sidebar__header {
-    padding: 32px 24px 16px;
-    @include displayFlex(flex-start, flex-start, column, 4px);
-
-    @media (max-width: 900px) {
-        display: none;
-    }
-}
-
-.dashboard-child-sidebar__overline {
-    @include labelCaps;
-    font-size: 0.6rem;
-    color: var(--color-muted-foreground);
-}
-
-.dashboard-child-sidebar__title {
-    font-family: var(--font-body);
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
 }
 
 .dashboard-child-sidebar__nav {
-    @include displayFlex(stretch, flex-start, column);
+    @include displayFlex(stretch, flex-start, column, 4px);
     width: 100%;
 
     @media (max-width: 900px) {
@@ -60,17 +37,19 @@
 .dashboard-child-sidebar__item {
     background: transparent;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 20px;
     text-align: left;
     color: var(--color-muted-foreground);
     @include displayFlex(center, flex-start, row, 10px);
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     width: 100%;
-    transition: color var(--transition-fast) ease, background-color var(--transition-fast) ease;
+    border-radius: var(--border-radius-btn);
+    border-left: 3px solid transparent;
+    transition: color var(--transition-fast) ease, background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
 
     i {
         font-size: 1rem;
@@ -84,8 +63,8 @@
     &--active {
         color: var(--color-foreground);
         background-color: var(--color-muted);
-        font-weight: 600;
-        border-left: 2px solid var(--color-foreground);
+        font-weight: 700;
+        border-left: 3px solid var(--color-foreground);
 
         @media (max-width: 900px) {
             border-left: none;
@@ -97,6 +76,7 @@
         width: auto;
         padding: 4px 12px;
         height: 32px;
-        font-size: 0.72rem;
+        font-size: 0.75rem;
+        border-radius: var(--border-radius-btn);
     }
 }

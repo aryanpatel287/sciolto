@@ -23,9 +23,6 @@ const DashboardMyProducts = ({
         return <div className="dashboard-error">Something went wrong.</div>;
     }
 
-    if (sellerProducts.length === 0)
-        return <div className="dashboard-empty">No products found.</div>;
-
     return (
         <div className="dashboard-my-products">
             <div className="dashboard-header-with-actions">
@@ -41,18 +38,22 @@ const DashboardMyProducts = ({
                 </button>
             </div>
 
-            <div className="products-grid">
-                {sellerProducts.map((product) => (
-                    <div
-                        key={product._id}
-                        className="dashboard-product-card-wrapper"
-                        onClick={() => onEditProduct(product._id)}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <EditorialProductCard product={product} />
-                    </div>
-                ))}
-            </div>
+            {sellerProducts.length === 0 ? (
+                <div className="dashboard-empty">No products found.</div>
+            ) : (
+                <div className="products-grid">
+                    {sellerProducts.map((product) => (
+                        <div
+                            key={product._id}
+                            className="dashboard-product-card-wrapper"
+                            onClick={() => onEditProduct(product._id)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <EditorialProductCard product={product} />
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

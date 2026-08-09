@@ -53,7 +53,6 @@ const mockProducts = [
 const UserProfile = () => {
     const { user } = useSelector((state) => state.auth);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [isParentCollapsed, setIsParentCollapsed] = useState(false);
 
     // Provide default fallback values for development/testing if user is empty
     const displayUser = user || {
@@ -64,17 +63,18 @@ const UserProfile = () => {
     };
 
     // Derive active tab from search parameter (Vercel best practice: no useEffect)
-    const activeTab = searchParams.get('tab') || 'home';
+    const rawTab = searchParams.get('tab') || 'home';
+    const activeTab = rawTab === 'my-products' ? 'products' : rawTab;
     const productId = searchParams.get('productId');
-    const isProductTab = ['my-products', 'add-product', 'edit-product', 'add-variant'].includes(activeTab);
-    const parentCollapsed = isProductTab || isParentCollapsed;
+    const isProductTab = ['products', 'add-product', 'edit-product', 'add-variant'].includes(activeTab);
+    const parentCollapsed = isProductTab;
 
     const handleTabChange = (newTab) => {
         setSearchParams({ tab: newTab });
     };
 
     return (
-        <div className="user-profile-page texture-lines texture-grid">
+        <div className="user-profile-page">
             <Navbar />
 
             <main className="user-profile-main" id="main-content">
@@ -83,25 +83,6 @@ const UserProfile = () => {
                         {/* ── Level 1: Parent Sidebar ── */}
                         <aside className={`dashboard-sidebar ${parentCollapsed ? 'dashboard-sidebar--collapsed' : ''}`}>
                             <div>
-                                {!isProductTab ? (
-                                    <div className="dashboard-sidebar__toggle-wrapper">
-                                        <button
-                                            type="button"
-                                            className="sidebar-toggle-btn"
-                                            onClick={() => setIsParentCollapsed(!isParentCollapsed)}
-                                            aria-label="Toggle Sidebar"
-                                        >
-                                            {isParentCollapsed ? (
-                                                <i className="ri-arrow-right-s-line"></i>
-                                            ) : (
-                                                <>
-                                                    <i className="ri-arrow-left-s-line"></i>
-                                                    <span>Collapse</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                ) : null}
 
                                 <nav className="dashboard-sidebar__nav">
                                     <button
@@ -136,7 +117,7 @@ const UserProfile = () => {
                                         <button
                                             type="button"
                                             className={`dashboard-sidebar__item ${isProductTab ? 'dashboard-sidebar__item--active' : ''}`}
-                                            onClick={() => handleTabChange('my-products')}
+                                            onClick={() => handleTabChange('products')}
                                             title="Products"
                                         >
                                             <i className="ri-shopping-bag-line"></i>
@@ -146,30 +127,6 @@ const UserProfile = () => {
                                 </nav>
                             </div>
                         </aside>
-
-                        {/* ── Level 2: Child Sidebar (Products Specific) ── */}
-                        {isProductTab ? (
-                            <aside className="dashboard-child-sidebar">
-                                <nav className="dashboard-child-sidebar__nav">
-                                    <button
-                                        type="button"
-                                        className={`dashboard-child-sidebar__item ${['my-products', 'edit-product', 'add-variant'].includes(activeTab) ? 'dashboard-child-sidebar__item--active' : ''}`}
-                                        onClick={() => handleTabChange('my-products')}
-                                    >
-                                        <i className="ri-list-check-2"></i>
-                                        <span>My Products</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`dashboard-child-sidebar__item ${activeTab === 'add-product' ? 'dashboard-child-sidebar__item--active' : ''}`}
-                                        onClick={() => handleTabChange('add-product')}
-                                    >
-                                        <i className="ri-add-line"></i>
-                                        <span>Add Product</span>
-                                    </button>
-                                </nav>
-                            </aside>
-                        ) : null}
 
                         {/* ── Main Content Area ── */}
                         <section className="profile-dashboard__main-content">
@@ -185,7 +142,7 @@ const UserProfile = () => {
                                 <DashboardAddresses />
                             ) : null}
 
-                            {activeTab === 'my-products' ? (
+                            {activeTab === 'products' ? (
                                 <DashboardMyProducts
                                     mockProducts={mockProducts}
                                     onAddNewProduct={() => handleTabChange('add-product')}
@@ -199,8 +156,8 @@ const UserProfile = () => {
                                     <h1 className="dashboard-title">List New Product</h1>
                                     <CreateProduct
                                         isEmbedded={true}
-                                        onCancel={() => handleTabChange('my-products')}
-                                        onSuccess={() => handleTabChange('my-products')}
+                                        onCancel={() => handleTabChange('products')}
+                                        onSuccess={() => handleTabChange('products')}
                                     />
                                 </div>
                             ) : null}
@@ -210,8 +167,8 @@ const UserProfile = () => {
                                     <h1 className="dashboard-title">Product Details</h1>
                                     <EditProduct
                                         productId={productId}
-                                        onCancel={() => handleTabChange('my-products')}
-                                        onSuccess={() => handleTabChange('my-products')}
+                                        onCancel={() => handleTabChange('products')}
+                                        onSuccess={() => handleTabChange('products')}
                                         onAddVariant={() => setSearchParams({ tab: 'add-variant', productId })}
                                     />
                                 </div>
