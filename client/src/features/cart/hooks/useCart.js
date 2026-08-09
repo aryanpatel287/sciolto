@@ -3,6 +3,7 @@ import {
     getCartItems,
     removeFromCart,
     updateCartItem,
+    getCartCount,
 } from '../service/cart.api';
 import { useDispatch } from 'react-redux';
 import {
@@ -10,11 +11,10 @@ import {
     setCartItems,
     setCart,
     setLoading,
+    clearCart,
+    setCartCountState,
 } from '../state/cart.slice';
-import {
-    createPaymentOrder,
-    verifyPaymentOrder,
-} from '../../payment/service/payment.api';
+import { createPaymentOrder, verifyPaymentOrder } from '../../payment/service/payment.api';
 
 export const useCart = () => {
     const dispatch = useDispatch();
@@ -110,11 +110,23 @@ export const useCart = () => {
                 addressId,
             });
             console.log('order verified', data);
+            if (data?.success && data?.orders?.length > 0) {
+                dispatch(clearCart());
+            }
             return data;
         } catch (error) {
             dispatch(setError(error.response?.data?.message ?? error.message));
         } finally {
             dispatch(setLoading(false));
+        }
+    }
+
+    async function handleFetchCartCount() {
+        try {
+            const data = await getCartCount();
+            dispatch(setCartCountState(data?.count || 0));
+        } catch (error) {
+            console.error('Failed to fetch cart count', error);
         }
     }
 
@@ -125,5 +137,6 @@ export const useCart = () => {
         handleUpdateCartItem,
         handleCreateCartOrder,
         handleVerifyOrder,
+        handleFetchCartCount,
     };
 };

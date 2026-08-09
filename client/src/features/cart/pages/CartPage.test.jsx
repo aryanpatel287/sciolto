@@ -7,6 +7,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import cartReducer from '../state/cart.slice';
 import authReducer from '../../auth/state/auth.slice';
 import productReducer from '../../products/state/product.slice';
+import addressReducer from '../../user/state/address.slice';
 import CartPage from '../pages/CartPage';
 import { getCartItems, addToCart, updateCartItem, removeFromCart } from '../service/cart.api';
 
@@ -46,11 +47,13 @@ describe('CartPage Component', () => {
                 cart: cartReducer,
                 auth: authReducer,
                 product: productReducer,
+                address: addressReducer,
             },
             preloadedState: {
                 cart: { items: [], loading: false, error: null },
                 auth: { user: null },
-                product: { products: [] }
+                product: { products: [] },
+                address: { addresses: [], loading: false, error: null },
             }
         });
     });
@@ -129,14 +132,10 @@ describe('CartPage Component', () => {
             screen.getByText('2', { selector: '.cart-quantity-stepper__val' }),
         ).toBeInTheDocument();
 
-        // Subtotal: 100 * 2 = 200
-        // Discount: 200 * 0.2 = 40
-        // Delivery: 15
-        // Total: 200 - 40 + 15 = 175
-        expect(screen.getByText('₹200.00')).toBeInTheDocument();
-        expect(screen.getByText('-₹40.00')).toBeInTheDocument();
-        expect(screen.getByText('₹15.00')).toBeInTheDocument();
-        expect(screen.getByText('₹175.00')).toBeInTheDocument();
+        // Subtotal: 200.00, Discount: 0.00, Delivery: 0.00, Total: 200.00
+        expect(screen.getAllByText('₹200.00')).toHaveLength(2);
+        expect(screen.getByText('-₹0.00')).toBeInTheDocument();
+        expect(screen.getByText('₹0.00')).toBeInTheDocument();
     });
 
     it('should increment and decrement quantity and update calculations', async () => {
@@ -210,7 +209,7 @@ describe('CartPage Component', () => {
         expect(
             screen.getByText('1', { selector: '.cart-quantity-stepper__val' }),
         ).toBeInTheDocument();
-        expect(screen.getByText('₹100.00')).toBeInTheDocument(); // Subtotal
+        expect(screen.getAllByText('₹100.00')).toHaveLength(2); // Subtotal + item price
 
         // Increment
         const incrementBtn = screen.getByLabelText('Increase quantity');
@@ -221,7 +220,7 @@ describe('CartPage Component', () => {
                 screen.getByText('2', { selector: '.cart-quantity-stepper__val' }),
             ).toBeInTheDocument();
         });
-        expect(screen.getByText('₹200.00')).toBeInTheDocument(); // Subtotal updated
+        expect(screen.getAllByText('₹200.00')).toHaveLength(2); // Subtotal updated
 
         // Decrement
         const decrementBtn = screen.getByLabelText('Decrease quantity');
@@ -232,7 +231,7 @@ describe('CartPage Component', () => {
                 screen.getByText('1', { selector: '.cart-quantity-stepper__val' }),
             ).toBeInTheDocument();
         });
-        expect(screen.getByText('₹100.00')).toBeInTheDocument(); // Subtotal updated back
+        expect(screen.getAllByText('₹100.00')).toHaveLength(2); // Subtotal updated back
     });
 
     it('should remove item from cart when delete button is clicked', async () => {

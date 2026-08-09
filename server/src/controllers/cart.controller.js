@@ -2,7 +2,7 @@ import cartModel from '../models/cart.model.js';
 import { sendResponse } from '../utils/response.utlis.js';
 import { findStockOfProduct, findProductByIdLean } from '../dao/product.dao.js';
 import mongoose from 'mongoose';
-import { findOrCreateCart, getFormattedCart } from '../dao/cart.dao.js';
+import { findOrCreateCart, getFormattedCart, getCartItemsCount } from '../dao/cart.dao.js';
 
 /**
  * @route POST /api/cart/add/:productId/:variantId
@@ -307,10 +307,34 @@ const getCartController = async (req, res) => {
     }
 };
 
+const getCartItemsCountController = async (req, res) => {
+    const userId = req.user._id;
+    try {
+        const count = await getCartItemsCount(userId);
+        return await sendResponse({
+            res,
+            statusCode: 200,
+            message: 'Cart count retrieved successfully',
+            success: true,
+            count,
+        });
+    } catch (error) {
+        console.error(error);
+        return await sendResponse({
+            res,
+            statusCode: 500,
+            message: 'Failed to retrieve cart count',
+            success: false,
+            error: error.message,
+        });
+    }
+};
+
 export {
     addToCartController,
     getCartController,
     removeFromCartController,
     updateCartItemController,
+    getCartItemsCountController,
 };
 

@@ -167,4 +167,35 @@ describe('Cart Endpoints & DAO', () => {
             expect(mockCart.save).toHaveBeenCalled();
         });
     });
+
+    describe('GET /api/cart/count', () => {
+        it('should return count 0 if user has no cart', async () => {
+            cartModel.findOne.mockResolvedValue(null);
+
+            const response = await request(app)
+                .get('/api/cart/count')
+                .set('Cookie', [`token=${token}`]);
+
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.count).toBe(0);
+        });
+
+        it('should sum up quantities of items in the cart', async () => {
+            cartModel.findOne.mockResolvedValue({
+                items: [
+                    { quantity: 2 },
+                    { quantity: 3 }
+                ]
+            });
+
+            const response = await request(app)
+                .get('/api/cart/count')
+                .set('Cookie', [`token=${token}`]);
+
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.count).toBe(5);
+        });
+    });
 });

@@ -36,108 +36,118 @@ export const getFormattedCart = async (userId, session) => {
 
     const options = session ? { session } : {};
 
-    const [aggregatedCart] = await cartModel.aggregate([
-        {
-            $match: {
-                user: new mongoose.Types.ObjectId(userId),
+    const [aggregatedCart] = await cartModel.aggregate(
+        [
+            {
+                $match: {
+                    user: new mongoose.Types.ObjectId(userId),
+                },
             },
-        },
-        {
-            $unwind: {
-                path: '$items',
+            {
+                $unwind: {
+                    path: '$items',
+                },
             },
-        },
-        {
-            $lookup: {
-                from: 'products',
-                let: { prodId: '$items.product', varId: '$items.variant' },
-                pipeline: [
-                    { $match: { $expr: { $eq: ['$_id', '$$prodId'] } } },
-                    {
-                        $project: {
-                            title: 1,
-                            seller: 1,
-                            price: 1,
-                            variants: {
-                                $filter: {
-                                    input: '$variants',
-                                    as: 'v',
-                                    cond: { $eq: ['$$v._id', '$$varId'] },
+            {
+                $lookup: {
+                    from: 'products',
+                    let: { prodId: '$items.product', varId: '$items.variant' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$_id', '$$prodId'] } } },
+                        {
+                            $project: {
+                                title: 1,
+                                seller: 1,
+                                price: 1,
+                                variants: {
+                                    $filter: {
+                                        input: '$variants',
+                                        as: 'v',
+                                        cond: { $eq: ['$$v._id', '$$varId'] },
+                                    },
                                 },
                             },
                         },
-                    },
-                ],
-                as: 'items.product',
-            },
-        },
-        {
-            $unwind: {
-                path: '$items.product',
-            },
-        },
-        {
-            $unwind: {
-                path: '$items.product.variants',
-            },
-        },
-        {
-            $set: {
-                'items.product.variants.isInStock': {
-                    $gte: [
-                        {
-                            $subtract: [
-                                {
-                                    $ifNull: [
-                                        '$items.product.variants.stock',
-                                        0,
-                                    ],
-                                },
-                                { $ifNull: ['$items.quantity', 0] },
-                            ],
-                        },
-                        0,
                     ],
+                    as: 'items.product',
                 },
             },
-        },
-        {
-            $set: {
-                'items.itemSubTotal': {
-                    amount: {
-                        $multiply: [
-                            '$items.quantity',
-                            { $ifNull: ['$items.product.variants.price.amount', '$items.product.price.amount'] },
+            {
+                $unwind: {
+                    path: '$items.product',
+                },
+            },
+            {
+                $unwind: {
+                    path: '$items.product.variants',
+                },
+            },
+            {
+                $set: {
+                    'items.product.variants.isInStock': {
+                        $gte: [
+                            {
+                                $subtract: [
+                                    {
+                                        $ifNull: ['$items.product.variants.stock', 0],
+                                    },
+                                    { $ifNull: ['$items.quantity', 0] },
+                                ],
+                            },
+                            0,
                         ],
                     },
-                    currency: { $ifNull: ['$items.product.variants.price.currency', '$items.product.price.currency'] },
                 },
             },
-        },
-        {
-            $group: {
-                _id: '$_id',
-                items: {
-                    $push: '$items',
-                },
-                totalAmount: {
-                    $sum: '$items.itemSubTotal.amount',
-                },
-                currency: {
-                    $first: '$items.itemSubTotal.currency',
+            {
+                $set: {
+                    'items.itemSubTotal': {
+                        amount: {
+                            $multiply: [
+                                '$items.quantity',
+                                {
+                                    $ifNull: [
+                                        '$items.product.variants.price.amount',
+                                        '$items.product.price.amount',
+                                    ],
+                                },
+                            ],
+                        },
+                        currency: {
+                            $ifNull: [
+                                '$items.product.variants.price.currency',
+                                '$items.product.price.currency',
+                            ],
+                        },
+                    },
                 },
             },
-        },
-        {
-            $project: {
-                items: 1,
-                totalCartPrice: {
-                    amount: '$totalAmount',
-                    currency: '$currency',
+            {
+                $group: {
+                    _id: '$_id',
+                    items: {
+                        $push: '$items',
+                    },
+                    totalAmount: {
+                        $sum: '$items.itemSubTotal.amount',
+                    },
+                    currency: {
+                        $first: '$items.itemSubTotal.currency',
+                    },
                 },
             },
-        },
-    ], options);
+            {
+                $project: {
+                    items: 1,
+                    totalCartPrice: {
+                        amount: '$totalAmount',
+                        currency: '$currency',
+                    },
+                },
+            },
+        ],
+        options,
+    );
 
     return (
         aggregatedCart || {
@@ -153,10 +163,29 @@ export const getFormattedCart = async (userId, session) => {
 
 export const clearCart = async (userId, session) => {
     const options = session ? { session, new: true } : { new: true };
-    return await cartModel.findOneAndUpdate(
-        { user: userId },
-        { $set: { items: [] } },
-        options
-    );
+    return await cartModel.findOneAndUpdate({ user: userId }, { $set: { items: [] } }, options);
 };
 
+export const getCartItemsCount = async (userId) => {
+    if (!mongoose.isValidObjectId(userId)) {
+        return 0;
+    }
+
+    const result = await cartModel.aggregate([
+        {
+            $match: {
+                user: new mongoose.Types.ObjectId(userId),
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                itemCount: {
+                    $sum: '$items.quantity',
+                },
+            },
+        },
+    ]);
+
+    return result[0]?.itemCount ?? 0;
+};
