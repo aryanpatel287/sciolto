@@ -5,9 +5,17 @@ import { MemoryRouter } from 'react-router';
 import { useSelector } from 'react-redux';
 import Navbar from './Navbar';
 
-// Mock react-redux useSelector hook
+// Mock react-redux hooks
 vi.mock('react-redux', () => ({
   useSelector: vi.fn(),
+  useDispatch: vi.fn(() => vi.fn()),
+}));
+
+// Mock useCart hook to isolate Navbar tests
+vi.mock('../../cart/hooks/useCart', () => ({
+  useCart: () => ({
+    handleFetchCartCount: vi.fn(),
+  }),
 }));
 
 // Mock LogoutButton to isolate Navbar tests
@@ -20,12 +28,19 @@ vi.mock('../../auth/components/LogoutButton', () => ({
 }));
 
 describe('Navbar Component', () => {
+  let mockState;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockState = {
+      auth: { user: null },
+      cart: { cartCount: 0, items: [] }
+    };
+    useSelector.mockImplementation((selectorFn) => selectorFn(mockState));
   });
 
   it('should render the logo brand name "Sciolto"', () => {
-    useSelector.mockReturnValue({ user: null });
+    mockState.auth.user = null;
 
     render(
       <MemoryRouter>
@@ -38,9 +53,8 @@ describe('Navbar Component', () => {
     expect(logoElements[0].closest('a')).toHaveAttribute('href', '/');
   });
 
-
   it('should open and close the Side Drawer category menu when toggled', () => {
-    useSelector.mockReturnValue({ user: null });
+    mockState.auth.user = null;
 
     render(
       <MemoryRouter>
@@ -69,12 +83,10 @@ describe('Navbar Component', () => {
   });
 
   it('should display username and profile dropdown triggers when user is authenticated', () => {
-    useSelector.mockReturnValue({
-      user: {
-        fullname: 'Alex Editorial',
-        role: 'buyer',
-      },
-    });
+    mockState.auth.user = {
+      fullname: 'Alex Editorial',
+      role: 'buyer',
+    };
 
     render(
       <MemoryRouter>
@@ -98,7 +110,7 @@ describe('Navbar Component', () => {
   });
 
   it('should toggle mobile search overlay and submit search', () => {
-    useSelector.mockReturnValue({ user: null });
+    mockState.auth.user = null;
     
     render(
       <MemoryRouter>

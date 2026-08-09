@@ -10,6 +10,7 @@ import {
     getCartController,
     removeFromCartController,
     updateCartItemController,
+    getCartItemsCountController,
 } from '../controllers/cart.controller.js';
 
 const cartRouter = new Router();
@@ -50,6 +51,13 @@ cartRouter.post(
  * @body No body required
  */
 cartRouter.get('/', authUser, getCartController);
+
+/**
+ * @route GET /api/cart/count
+ * @desc Get cart items count
+ * @access Private
+ */
+cartRouter.get('/count', authUser, getCartItemsCountController);
 
 /**
  * @route POST /api/cart/remove/:productId/:variantId

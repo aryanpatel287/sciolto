@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import LogoutButton from '../../auth/components/LogoutButton';
+import { useCart } from '../../cart/hooks/useCart';
 
 const Navbar = () => {
     const { user } = useSelector((state) => state.auth);
@@ -11,21 +12,14 @@ const Navbar = () => {
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const navigate = useNavigate();
 
-    const [cartCount, setCartCount] = useState(0);
-
-    const items = useSelector((state) => state.cart?.items || []);
+    const { handleFetchCartCount } = useCart();
+    const cartCount = useSelector((state) => state.cart?.cartCount || 0);
 
     useEffect(() => {
-        if (Array.isArray(items)) {
-            const count = items.reduce(
-                (acc, curr) => acc + (curr.quantity || 0),
-                0,
-            );
-            setCartCount(count);
-        } else {
-            setCartCount(0);
+        if (user) {
+            handleFetchCartCount();
         }
-    }, [items]);
+    }, [user]);
 
     useEffect(() => {
         if (isDrawerOpen) {

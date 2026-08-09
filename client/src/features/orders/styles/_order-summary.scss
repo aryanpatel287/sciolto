@@ -7,13 +7,13 @@
 
 .order-summary-main {
     flex: 1;
-    padding: 60px var(--spacing-gutter-desktop, 80px);
+    padding: 80px var(--spacing-gutter-desktop, 80px) 120px;
     display: flex;
     justify-content: center;
     background-color: var(--color-background, #ffffff);
 
     @media (max-width: 768px) {
-        padding: 40px var(--spacing-gutter-mobile, 16px);
+        padding: 50px var(--spacing-gutter-mobile, 16px) 80px;
     }
 }
 
@@ -39,9 +39,15 @@
     gap: 16px;
 
     &__icon {
-        font-size: 4rem;
+        font-size: 4.5rem;
         color: #2e7d32;
         line-height: 1;
+        margin-top: 32px; /* Increased top spacing */
+        
+        @media (max-width: 768px) {
+            font-size: 3.5rem;
+            margin-top: 16px;
+        }
     }
 }
 
@@ -53,6 +59,10 @@
     letter-spacing: -0.03em;
     margin: 0;
     color: var(--color-foreground, #000000);
+
+    @media (max-width: 768px) {
+        font-size: 1.6rem;
+    }
 }
 
 .order-summary-text {
@@ -61,6 +71,10 @@
     color: var(--color-muted-foreground, #666666);
     line-height: 1.5;
     margin: 0;
+
+    @media (max-width: 768px) {
+        font-size: 0.95rem;
+    }
 }
 
 .order-summary-details {
@@ -99,6 +113,9 @@
     &__row {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap; /* Support wrapping on narrow screens */
         font-family: var(--font-body, 'Satoshi', sans-serif);
         font-size: 0.875rem;
         color: var(--color-muted-foreground, #666666);
@@ -106,6 +123,8 @@
         strong {
             color: var(--color-foreground, #000000);
             font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            word-break: break-all;
+            text-align: right;
         }
     }
 
@@ -140,6 +159,7 @@
         font-size: 0.875rem;
         font-weight: 700;
         margin: 0;
+        word-break: break-all;
     }
 
     &__items {
@@ -151,6 +171,8 @@
     &__footer {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 16px;
         font-family: var(--font-body, 'Satoshi', sans-serif);
         font-size: 0.875rem;
         font-weight: 700;
@@ -161,6 +183,10 @@
     display: flex;
     align-items: center;
     gap: 16px;
+
+    @media (max-width: 480px) {
+        gap: 12px;
+    }
 
     &__img {
         width: 60px;
@@ -190,6 +216,7 @@
         color: var(--color-muted-foreground, #666666);
         margin: 0;
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
     }
 

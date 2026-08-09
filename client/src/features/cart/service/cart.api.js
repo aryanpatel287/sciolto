@@ -68,3 +68,14 @@ export const updateCartItem = async ({ productId, variantId, quantity }) => {
         throw error;
     }
 };
+
+export const getCartCount = async () => {
+    try {
+        const response = await cartApiInstance.get('/count');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cart count', error);
+        throw error;
+    }
+};
+
