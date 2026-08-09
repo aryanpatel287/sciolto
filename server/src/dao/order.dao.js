@@ -5,3 +5,13 @@ export const createOrders = async (ordersData, session) => {
     return await orderModel.create(ordersData, options);
 };
 
+export const getOrdersByUser = async (userId) => {
+    return await orderModel.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'items.product',
+            select: 'title images price description'
+        })
+        .lean();
+};
+

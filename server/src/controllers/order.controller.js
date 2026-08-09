@@ -1,4 +1,5 @@
 import orderModel from '../models/order.model.js';
+import { getOrdersByUser } from '../dao/order.dao.js';
 import { sendResponse } from '../utils/response.utlis.js';
 
 async function createOrderController(req, res) {
@@ -32,4 +33,26 @@ async function createOrderController(req, res) {
     }
 }
 
-export { createOrderController };
+async function getUserOrdersController(req, res) {
+    try {
+        const userId = req.user._id;
+        const orders = await getOrdersByUser(userId);
+        return sendResponse({
+            res,
+            statusCode: 200,
+            message: 'Orders retrieved successfully',
+            success: true,
+            orders: orders || [],
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: 500,
+            message: 'Failed to retrieve orders',
+            success: false,
+            error: error.message,
+        });
+    }
+}
+
+export { createOrderController, getUserOrdersController };
