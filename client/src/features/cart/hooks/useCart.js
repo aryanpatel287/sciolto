@@ -97,6 +97,7 @@ export const useCart = () => {
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
+        addressId,
     }) {
         dispatch(setLoading(true));
         dispatch(setError(null));
@@ -106,6 +107,7 @@ export const useCart = () => {
                 razorpay_order_id,
                 razorpay_payment_id,
                 razorpay_signature,
+                addressId,
             });
             console.log('order verified', data);
             return data;

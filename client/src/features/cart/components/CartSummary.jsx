@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate, useSearchParams } from 'react-router';
 import '../styles/_cart-summary.scss';
 import { useCart } from '../hooks/useCart';
 import { useRazorpay, RazorpayOrderOptions } from 'react-razorpay';
+import { useAddress } from '../../user/hooks/useAddress';
+import AddressSelectModal from './AddressSelectModal';
 
 const CartSummary = () => {
     const cartItems = useSelector((state) => state.cart.items);
@@ -14,6 +17,42 @@ const CartSummary = () => {
     const isAllItemsInStock = cartItems.every(
         (item) => item.product.variants.isInStock,
     );
+
+        const addresses = useSelector((state) => state.address.addresses);
+    const { handleFetchAddresses } = useAddress();
+    const [selectedAddressId, setSelectedAddressId] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectAddressIdParam = searchParams.get('selectAddressId');
+
+    useEffect(() => {
+        handleFetchAddresses();
+    }, []);
+
+    useEffect(() => {
+        if (addresses && addresses.length > 0) {
+            if (selectAddressIdParam) {
+                setSelectedAddressId(selectAddressIdParam);
+                const params = new URLSearchParams(searchParams);
+                params.delete('selectAddressId');
+                setSearchParams(params);
+            } else if (!selectedAddressId) {
+                setSelectedAddressId(addresses[0]._id);
+            }
+        }
+    }, [addresses, selectAddressIdParam]);
+
+    const selectedAddress = addresses && addresses.length > 0
+        ? (addresses.find((addr) => addr._id === selectedAddressId) || addresses[0])
+        : null;
+
+    useEffect(() => {
+        if (selectedAddress && selectedAddress._id !== selectedAddressId) {
+            setSelectedAddressId(selectedAddress._id);
+        }
+    }, [selectedAddress, selectedAddressId]);
 
     // Calculations
     const subtotal = totalCartPrice?.amount || 0;
@@ -43,6 +82,7 @@ const CartSummary = () => {
                     razorpay_order_id: order.id,
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_signature: response.razorpay_signature,
+                    addressId: selectedAddressId,
                 });
 
                 if (isPaymentVerified.success) {
@@ -113,10 +153,62 @@ const CartSummary = () => {
                 </button>
             </div>
 
+            <div className="cart-checkout-address-section">
+                <div className="address-info-row">
+                    <div className="delivery-icon">
+                        <i className="ri-truck-line"></i>
+                    </div>
+                    {selectedAddress ? (
+                        <div className="address-details">
+                            <div className="address-header-text">
+                                Delivering to <strong>{selectedAddress.name}, {selectedAddress.pincode}</strong>
+                            </div>
+                            <div className="address-body-text">
+                                {selectedAddress.addressLine1}{selectedAddress.addressLine2 ? `, ${selectedAddress.addressLine2}` : ''}, {selectedAddress.city}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="address-details">
+                            <div className="address-header-text">
+                                No shipping address found.
+                            </div>
+                        </div>
+                    )}
+                    
+                    {selectedAddress ? (
+                        <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            className="change-address-btn"
+                        >
+                            CHANGE
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => navigate('/profile?tab=addresses&action=add&redirect=/cart')}
+                            className="change-address-btn"
+                        >
+                            ADD ADDRESS
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <AddressSelectModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                addresses={addresses}
+                selectedAddressId={selectedAddressId}
+                onSelect={(id) => setSelectedAddressId(id)}
+                onAddNew={() => navigate('/profile?tab=addresses&action=add&redirect=/cart')}
+                onEdit={(id) => navigate(`/profile?tab=addresses&action=edit&addressId=${id}&redirect=/cart`)}
+            />
+
             <button
                 className="button primary-button cart-checkout-btn"
                 onClick={() => handleCheckout()}
-                disabled={!isAllItemsInStock}
+                disabled={!isAllItemsInStock || !selectedAddressId}
             >
                 Go to Checkout <i className="ri-arrow-right-line"></i>
             </button>

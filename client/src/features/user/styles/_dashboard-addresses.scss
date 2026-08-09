@@ -1,0 +1,132 @@
+.dashboard-addresses {
+  .dashboard-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .addresses-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .address-card {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 0;
+    padding: 1.5rem 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    &__name {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    &__contact, &__line, &__city-pin, &__country {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: #333;
+    }
+
+    &__actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+
+      .address-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-family: 'Satoshi', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+
+        &.edit-btn {
+          color: var(--color-foreground, #000);
+        }
+
+        &.delete-btn {
+          color: var(--color-sale-red, #ff3333);
+        }
+      }
+    }
+  }
+
+  .form-container-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 1rem 0 2rem 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .address-form {
+    .form-title {
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      
+      .form-group {
+        flex: 1;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.25rem;
+
+      label {
+        font-family: 'Satoshi', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+      }
+
+      input {
+        border: none;
+        border-bottom: 2px solid #ccc;
+        border-radius: 0;
+        padding: 0.5rem 0;
+        font-family: 'Satoshi', sans-serif;
+        transition: border-color 0.2s ease;
+        outline: none;
+        background: transparent;
+
+        &:focus {
+          border-bottom-color: #000;
+        }
+
+        &.error {
+          border-bottom-color: var(--color-sale-red, #ff3333);
+        }
+      }
+
+      .error-text {
+        font-size: 0.75rem;
+        color: var(--color-sale-red, #ff3333);
+        margin-top: 0.25rem;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+  }
+}

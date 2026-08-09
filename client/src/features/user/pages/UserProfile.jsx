@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router';
 import Navbar from '../../shared/components/Navbar';
 import DashboardHome from '../components/DashboardHome';
 import DashboardAccount from '../components/DashboardAccount';
+import DashboardAddresses from '../components/DashboardAddresses';
 import DashboardMyProducts from '../../products/components/product-dashboard/DashboardMyProducts';
 import CreateProduct from '../../products/pages/product-dashboard/CreateProduct';
 import EditProduct from '../../products/pages/product-dashboard/EditProduct';
@@ -121,6 +122,15 @@ const UserProfile = () => {
                                         <i className="ri-user-line"></i>
                                         <span>Account</span>
                                     </button>
+                                    <button
+                                        type="button"
+                                        className={`dashboard-sidebar__item ${activeTab === 'addresses' ? 'dashboard-sidebar__item--active' : ''}`}
+                                        onClick={() => handleTabChange('addresses')}
+                                        title="Addresses"
+                                    >
+                                        <i className="ri-map-pin-line"></i>
+                                        <span>Addresses</span>
+                                    </button>
 
                                     {displayUser.role === 'seller' ? (
                                         <button
@@ -169,6 +179,10 @@ const UserProfile = () => {
 
                             {activeTab === 'account' ? (
                                 <DashboardAccount displayUser={displayUser} />
+                            ) : null}
+
+                            {activeTab === 'addresses' ? (
+                                <DashboardAddresses />
                             ) : null}
 
                             {activeTab === 'my-products' ? (

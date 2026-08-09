@@ -22,12 +22,14 @@ export const verifyPaymentOrder = async ({
     razorpay_order_id,
     razorpay_payment_id,
     razorpay_signature,
+    addressId,
 }) => {
     try {
         const response = await paymentApiInstance.post('/verify/order', {
             razorpay_order_id,
             razorpay_payment_id,
             razorpay_signature,
+            addressId,
         });
         return response.data;
     } catch (error) {

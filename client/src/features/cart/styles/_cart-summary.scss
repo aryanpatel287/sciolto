@@ -1,4 +1,5 @@
 @use '../../shared/styles/mixins' as *;
+@use './address-modal';
 
 .cart-summary-card {
     border: 1px solid var(--color-border);
@@ -109,3 +110,71 @@
     justify-content: center;
     gap: 8px;
 }
+
+.cart-checkout-address-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+
+  .address-info-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .delivery-icon {
+    font-size: 1.5rem;
+    color: #ff5a3c;
+    background: #fff5f2;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+
+  .address-details {
+    flex: 1;
+    font-family: 'Satoshi', sans-serif;
+
+    .address-header-text {
+      font-size: 0.95rem;
+      color: #000;
+      margin-bottom: 0.2rem;
+      
+      strong {
+        font-weight: 700;
+      }
+    }
+
+    .address-body-text {
+      font-size: 0.85rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+  }
+
+  .change-address-btn {
+    background: none;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #000;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.5px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+
