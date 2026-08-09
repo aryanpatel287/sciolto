@@ -10,6 +10,7 @@ import {
     setCartItems,
     setCart,
     setLoading,
+    clearCart,
 } from '../state/cart.slice';
 import {
     createPaymentOrder,
@@ -110,6 +111,9 @@ export const useCart = () => {
                 addressId,
             });
             console.log('order verified', data);
+            if (data?.success && data?.orders?.length > 0) {
+                dispatch(clearCart());
+            }
             return data;
         } catch (error) {
             dispatch(setError(error.response?.data?.message ?? error.message));

@@ -11,6 +11,7 @@ import LandingPage from '../features/landing/pages/LandingPage';
 import ProductsPage from '../features/products/pages/ProductsPage';
 import ProductDetailsPage from '../features/products/pages/ProductDetailsPage';
 import CartPage from '../features/cart/pages/CartPage';
+import OrderSummaryPage from '../features/orders/pages/OrderSummaryPage';
 
 export const appRoutes = createBrowserRouter([
     {
@@ -30,6 +31,14 @@ export const appRoutes = createBrowserRouter([
         element: (
             <ProtectedPage>
                 <CartPage />
+            </ProtectedPage>
+        ),
+    },
+    {
+        path: '/order-summary',
+        element: (
+            <ProtectedPage>
+                <OrderSummaryPage />
             </ProtectedPage>
         ),
     },

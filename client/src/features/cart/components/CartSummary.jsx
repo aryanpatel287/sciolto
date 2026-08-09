@@ -87,6 +87,12 @@ const CartSummary = () => {
 
                 if (isPaymentVerified.success) {
                     console.log('Payment verified', isPaymentVerified);
+                    navigate('/order-summary', {
+                        state: {
+                            orders: isPaymentVerified.orders,
+                            paymentOrder: isPaymentVerified.paymentOrder,
+                        },
+                    });
                 } else {
                     console.log('Payment not verified', isPaymentVerified);
                 }
