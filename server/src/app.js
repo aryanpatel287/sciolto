@@ -15,6 +15,7 @@ import appRouter from './routes/app.routes.js';
 import categoryRouter from './routes/category.route.js';
 import paymentRouter from './routes/payment.routes.js';
 import orderRouter from './routes/order.routes.js';
+import addressRouter from './routes/address.routes.js';
 
 import { blockSuspiciousRequests } from './middlewares/app.middleware.js';
 
@@ -68,6 +69,7 @@ app.use('/api/cart', cartRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/orders', orderRouter);
+app.use('/api/address', addressRouter);
 app.use('/', appRouter);
 
 export default app;
