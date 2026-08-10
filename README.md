@@ -1,145 +1,147 @@
 <!-- prettier-ignore -->
 <div align="center">
 
-<h1>Sciolto</h1>
+# Sciolto
 
-_A premium, high-contrast luxury streetwear e-commerce platform featuring modular dart-sass styling, server-side paginated queries, client-side pagination caching, and ImageKit image serialization._
+*Sciolto is a premium, full-stack streetwear e-commerce platform featuring modular BEM Sass layouts, database transactions for concurrent checkout safety, client-side pagination caching, and CDN-backed media delivery.*
 
-[![Node version](https://img.shields.io/badge/Node.js->=18-3c873a?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![React version](https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev)
-[![Express version](https://img.shields.io/badge/Express-5.0-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
-[![MongoDB version](https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongoosejs.com)
-[![Redis version](https://img.shields.io/badge/Redis-ioredis_5-FF4438?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
+[![Live Demo](https://img.shields.io/badge/Demo-Live_Site-blue?style=flat-square&logo=googlechrome&logoColor=white)](https://sciolto.aryanpatel.in) [![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev) [![Node.js](https://img.shields.io/badge/Node.js-20%2B-3c873a?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org) [![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com) [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com) [![Redis](https://img.shields.io/badge/Redis-ioredis-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
 
-[Overview](#overview) • [Key Features](#key-features) • [Tech Stack](#tech-stack) • [Architecture](#architecture) • [Getting Started](#getting-started) • [Testing](#testing)
+[Live Demo](https://sciolto.aryanpatel.in) • [Client Documentation](./client/README.md) • [Server Documentation](./server/README.md) • [GitHub Repository](https://github.com/aryanpatel287/sciolto)
 
 </div>
 
----
+## Preview
 
-## Overview
+![Storefront Catalog Preview](./assets/storefront-preview.png)
 
-Sciolto is a modern streetwear e-commerce platform built with a high-contrast editorial brand aesthetic. It features a responsive React 19 single-page client and a robust Express.js backend API backed by MongoDB and Redis. 
+## Core Engineering Highlights
 
-The application utilizes server-side pagination, dynamic category and price filtering, a comprehensive seller inventory dashboard, custom variant management (sizes and colors), base64 image serialization, and ImageKit integration.
+* **Transactional Concurrency Control** — Utilizes Mongoose database sessions and multi-document transactions to run atomic inventory checks (`variants.stock: { $gte: quantity }`) and updates (`$inc`) during payments, preventing stock overselling under high concurrency.
+* **Client-Side Page Caching** — Integrates a Redux Toolkit cache (`productsByPage`) to store loaded product catalog pages, making back-and-forth category transitions instant (0ms) while dynamically invalidating cache entries on filter/sort resets.
+* **Server-Side Catalog Query Engine** — Offloads compound search, category matching, price filters, and pagination directly to optimized MongoDB index queries rather than processing large datasets in-memory on the client.
+* **Dynamic Variant Modeling** — Models products as polymorphic entities with nested variants, allowing independent sizing, colors, pricing, inventory stock, and media galleries that resolve dynamically based on user selections.
+* **Decoupled Security Shield** — Mounts custom Express middleware to intercept and drop web scanners looking for backup files (`.bak`), configuration credentials (`.env`), or target script paths (`.php`), returning clean 404s before hitting backend controllers.
 
-For developer guides and specific setup details:
-* To configure and launch the API server, see the [Server README](./server/README.md).
-* To configure and launch the Vite client, see the [Client README](./client/README.md).
+## Why I Built This
 
-> [!NOTE]
-> Make sure to have both MongoDB and Redis servers running locally or remotely before launching the application.
+Sciolto was designed to explore full-stack engineering challenges that extend beyond basic UI mockups. The goal was to build an e-commerce architecture implementing production-grade backend safeguards: atomic stock inventory controls under concurrent Razorpay checkouts, dynamic variant swapping databases, a Redux page caching strategy for smooth UX, and robust middleware pipelines to secure authentication sessions.
 
----
+## High-Level Architecture
 
-## Key Features
+```text
+               ┌──────────────────────────────┐
+               │    React SPA Client (Sass)   │
+               └──────────────┬───────────────┘
+                              │ Axios / REST API
+                              ▼
+               ┌──────────────────────────────┐
+               │   Express.js Backend Engine  │
+               └──────────────┬───────────────┘
+                              │
+     ┌────────────────────────┼────────────────────────┐
+     ▼                        ▼                        ▼
+┌───────────┐            ┌───────────┐            ┌───────────┐
+│  MongoDB  │            │   Redis   │            │ ImageKit  │
+│ (Mongoose)│            │ (ioredis) │            │ (CDN API) │
+└───────────┘            └───────────┘            └───────────┘
+```
 
-- **High-Contrast Editorial Canvas**: High-contrast typographic brand styling utilizing Google Poppins display and Satoshi body typefaces alongside a clean pure white/black palette.
-- **Client-Side Page Caching**: Integrates a Redux-based pagination cache (`productsByPage`) to cache loaded catalog pages, making backward/forward browsing transitions instant (0ms) and invalidating the cache cleanly on filter resets.
-- **Dynamic Product Variants**: Allows sellers to define custom attributes (such as size and color), manage individual variant stock/pricing, and toggle variant-specific galleries that resolve dynamically when attributes match.
-- **Server-Side Pagination & Filters**: Offloads search, category matching, price filters, and sorting parameters directly to optimized MongoDB queries rather than relying on in-memory client operations.
-- **Multi-Sidebar Seller Dashboard**: Fully responsive dashboard providing inventory listings, inline product editing with modification detection, and embedded creation workflows.
-- **Secure JWT Authentication**: HTTP-only cookie-based authentication with user role enforcements (`buyer`/`seller`) and session blacklisting in Redis upon logout.
-- **Robust Media Pipeline**: In-memory Multer storage configuration processing image uploads, converting variant assets to base64, and storing them directly to ImageKit CDN.
-- **Gmail & Resend Integrations**: Supports password reset flows via Gmail OAuth2 client and Resend API.
-- **Automated Catalog Seeding**: Automated script to populate size and waist variant streetwear catalogs fetched from external sources into ImageKit and MongoDB.
+The React client communicates with the Express REST API for catalog browsing, user authentication, cart state, checkout, and address management. Persistent e-commerce data is stored in MongoDB, while Redis acts as a high-speed token/session blacklist cache, and ImageKit manages direct-to-CDN media storage.
 
----
+## Key Engineering Decisions
+
+### 1. Server-Side catalog querying
+Filtering, sorting, and pagination are executed directly on the database layer rather than loading catalog sets into client state. This reduces payload sizes over mobile connections and uses MongoDB compound indexing for fast search.
+
+### 2. Client-side page caching
+To prevent redundant API requests during back-and-forth navigation, previously fetched pages are stored in Redux. Any mutation of search filters or category selections automatically invalidates the cache to maintain catalog freshness.
+
+### 3. Nested variant schema modeling
+Instead of treating products as flat SKUs, variant attributes (size, color, stock) are modeled as nested sub-documents. This enables granular inventory tracking and ensures pricing and media update instantly when options match.
+
+### 4. Redis-backed JWT invalidation
+To prevent session replay attacks on logout, user tokens are blacklisted in a Redis store for the remainder of their TTL, turning stateless JWTs into a secure, revocable session mechanism.
 
 ## Tech Stack
 
-| Layer | Technology | Description |
-|---|---|---|
-| **Client** | React 19, Vite 7, Redux Toolkit, React Router 7 | Frontend framework, fast build pipeline, global state management, and declarative routing. |
-| **Styling** | Sass / SCSS (Dart Sass) | Structured feature partials using Sass `@use` and BEM methodology (no utility css). |
-| **Server** | Express.js (v5+) | Backend API framework, validators, and modular controllers. |
-| **Database** | MongoDB + Mongoose 9 | Document storage, models, and compound indexing. |
-| **Caching** | Redis (ioredis v5) | Token blacklists and session storage. |
-| **Services** | ImageKit, Resend API, Gmail API | Media hosting CDN, password reset emails, and email delivery. |
-| **Testing** | Vitest + Supertest | Unit and integration testing suites for client and server. |
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19 (Hooks/Context), Vite 7, Redux Toolkit, Axios |
+| **Styling** | Sass / SCSS (Dart Sass `@use`, BEM naming conventions) |
+| **Backend** | Node.js, Express.js (v5.x), Express Validator |
+| **Database** | MongoDB (Mongoose v9.x) |
+| **Caching** | Redis (`ioredis` v5.x) |
+| **Media CDN** | ImageKit Node SDK, Multer |
+| **Services** | Nodemailer, Gmail OAuth2, Resend API, Razorpay |
+| **Testing** | Vitest, Supertest, Artillery (Load Testing) |
 
----
-
-## Architecture
-
-Sciolto uses a clean, decoupled architecture:
+## Project Structure
 
 ```text
-Sciolto/
-├── client/                 # React frontend application (Vite 7)
-│   ├── src/
-│   │   ├── app/            # App setup, store, and routes
-│   │   ├── features/       # Feature-first modular directories (auth, products, shared, user)
-│   │   └── main.jsx        # App entry point
-├── server/                 # Express API server (Node ESM)
-│   ├── src/
-│   │   ├── config/         # Environment config and DB connect clients
-│   │   ├── controllers/    # API controllers
-│   │   ├── middlewares/    # Custom middlewares (auth, upload)
-│   │   ├── models/         # Mongoose models (User, Product)
-│   │   ├── routes/         # Express endpoint routes
-│   │   └── scripts/        # Seeding utility script
+sciolto/
+├── client/      → React frontend SPA (Vite)
+├── server/      → Express API backend (Node.js ESM)
+└── README.md    → Project overview & landing page
 ```
 
----
+## Quick Start
 
-## Getting Started
-
-### 1. Installation
-Install dependencies inside both directories:
-
+### 1. Install Dependencies
+Install packages in the client and server directories:
 ```bash
-# Client
-cd client
-npm install
+# Frontend dependencies
+cd client && npm install
 
-# Server
-cd ../server
-npm install
+# Backend dependencies
+cd ../server && npm install
 ```
 
 ### 2. Environment Variables
-Copy the template configuration file in the server directory to create your `.env` file:
-
+Copy `.env.example` in the `server` directory and fill in your database and service keys:
 ```bash
 cd server
 cp .env.example .env
 ```
+*(For complete details, see the [Server Environment Setup Guide](./server/README.md#environment-variables).)*
 
-Open `server/.env` and update the keys with your credentials.
-
-### 3. Database Seeding
-Wipe the existing catalog and seed standard products and seller profiles:
+### 3. Seed the Database
+Populate standard category structures and inventory details:
 ```bash
 cd server
 npm run seed
 ```
 
-### 4. Running the App
-Start the development servers in parallel:
-
+### 4. Run the Application
+Start the development servers:
 ```bash
-# Terminal 1: Server
-cd server
-npm run dev
+# Start backend API (Terminal 1)
+cd server && npm run dev
 
-# Terminal 2: Client
-cd client
-npm run dev
+# Start frontend client (Terminal 2)
+cd client && npm run dev
 ```
-
----
 
 ## Testing
 
-Run tests locally with Vitest:
+The repository includes test suites covering both client and server layers:
 
-```bash
-# Server API integration tests
-cd server
-npm run test
+* **Backend Integration Tests**: Runs Vitest suite testing Express routes, authentication validation, cart operations, and model validations.
+  ```bash
+  cd server && npm run test
+  ```
+* **Frontend Component Tests**: Evaluates UI hooks, features, and Redux slice handlers in React.
+  ```bash
+  cd client && npm run test
+  ```
+* **Performance Load Tests**: Executes Artillery load test scenarios verifying application performance under guest and authenticated load.
+  ```bash
+  cd server && npm run test:load
+  ```
 
-# Client component & hook tests
-cd client
-npm run test
-```
+## Security Considerations
+
+* **Secure Auth Sessions**: Utilizes HTTP-only cookies to store JWT session tokens, preventing cross-site scripting (XSS) token access.
+* **Stateless Session Revocation**: Redis blacklisting marks tokens invalid on user logout before token expiration.
+* **Database Sanitization & Input Validation**: Payload validation through `express-validator` prevents query injection.
+* **Malicious Probe Isolation**: Early-stage middlewares drop suspicious scanner requests (`.env`, `.php`, `.bak`) to prevent API resource depletion.
